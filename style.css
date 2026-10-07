@@ -1,0 +1,97 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #eef6f9;
+    color: #222;
+}
+
+header {
+    background-color: #075985;
+    color: white;
+    text-align: center;
+    padding: 25px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+}
+
+.container {
+    width: 90%;
+    max-width: 850px;
+    margin: 25px auto;
+}
+
+.card {
+    background-color: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px #cccccc;
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+button {
+    background-color: #075985;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 7px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0369a1;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+}
+
+#floodResult {
+    margin-top: 15px;
+    padding: 15px;
+    font-weight: bold;
+    border-radius: 6px;
+}
+
+.map {
+    height: 400px;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pothole {
+    position: absolute;
+    top: 80px;
+    left: 35%;
+    font-size: 35px;
+}
+
+.flood {
+    position: absolute;
+    top: 180px;
+    left: 65%;
+    font-size: 35px;
+}
+
+footer {
+    background-color: #075985;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}

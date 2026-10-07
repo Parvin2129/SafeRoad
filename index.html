@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>SafeRoad</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+    href ="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>🚨 SafeRoad</h1>
+
+    <p>Flood & Road Hazard Alert System</p>
+
+</header>
+
+
+<div class="container">
+
+
+    <!-- Flood Alert -->
+
+    <section class="card">
+
+        <h2>🌧️ Flood Risk</h2>
+
+        <p>
+            Check the current risk level of your area.
+        </p>
+
+        <button onclick="checkFlood()">
+            Check Flood Risk
+        </button>
+
+        <div id="floodResult"></div>
+
+    </section>
+
+
+    <!-- Location -->
+
+    <section class="card">
+
+        <h2>📍 My Location</h2>
+
+        <button onclick="getLocation()">
+            Detect My Location
+        </button>
+
+        <p id="location">
+            Location not detected
+        </p>
+
+    </section>
+
+
+    <!-- Report -->
+
+    <section class="card">
+
+        <h2>🚨 Report Road Hazard</h2>
+
+        <select id="hazard">
+
+            <option>Pothole</option>
+
+            <option>Flooded Road</option>
+
+            <option>Road Damage</option>
+
+        </select>
+
+
+        <input
+            type="text"
+            id="place"
+            placeholder="Enter location"
+        >
+
+
+        <input
+            type="file"
+            id="photo"
+            accept="image/*"
+        >
+
+
+        <button onclick="reportHazard()">
+            Report Hazard
+        </button>
+
+
+        <p id="reportResult"></p>
+
+    </section>
+
+
+    <!-- Map -->
+
+    <section class="card">
+
+    <h2>🗺️ Hazard Map</h2>
+
+    <div id="map"></div>
+
+    <p>
+        🕳️ Pothole &nbsp;&nbsp;
+        🌊 Flooded Road
+    </p>
+
+</section>
+    
+
+
+</div>
+
+
+<footer>
+
+    SafeRoad © 2026
+
+</footer>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
