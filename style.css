@@ -72,7 +72,7 @@ select {
     height: 400px;
     width: 100%;
     border-radius: 10px;
-    overflow: hidden;
+    z-index: 1;
 }
 
 .pothole {
@@ -94,4 +94,23 @@ footer {
     color: white;
     text-align: center;
     padding: 15px;
+}
+#map {
+    height: 400px;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    z-index: 1;
+}
+
+#mapStatus {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.hazard-photo {
+    width: 180px;
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
 }

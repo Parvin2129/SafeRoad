@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet"
     href ="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 </head>
 
@@ -103,12 +105,21 @@
 
 
     <!-- Map -->
+<section class="card">
+    <h2>🗺️ Live Hazard Map</h2>
 
-    <section class="card">
-
-    <h2>🗺️ Hazard Map</h2>
+    <p>
+        🔵 Blue: Your location |
+        🔴 Red: Pothole |
+        🌊 Flooded Road |
+        🟠 Road Damage
+    </p>
 
     <div id="map"></div>
+
+    <p id="mapStatus">Allow location access to find your position.</p>
+</section>
+
 
     <p>
         🕳️ Pothole &nbsp;&nbsp;
