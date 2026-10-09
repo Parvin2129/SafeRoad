@@ -1,168 +1,181 @@
-// ===============================
-// FLOOD RISK
-// ===============================
+let map;
+let userMarker;
+let accuracyCircle;
+let currentPosition = null;
+let selectedReportPosition = null;
+let hazardMarkers = [];
+let watchId = null;
 
-function checkFlood() {
+// Create the interactive map
+map = L.map("map").setView([12.9716, 77.5946], 12);
 
-    let result = document.getElementById("floodResult");
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+}).addTo(map);
 
-    let risks = ["LOW", "MEDIUM", "HIGH"];
+// Select a report location by clicking anywhere on the map
+map.on("click", function (event) {
+    selectedReportPosition = event.latlng;
 
-    let random = Math.floor(Math.random() * 3);
+    document.getElementById("mapStatus").textContent =
+        "Report location selected: " +
+        event.latlng.lat.toFixed(5) + ", " +
+        event.latlng.lng.toFixed(5);
+});
 
-    let risk = risks[random];
-
-    if (risk === "LOW") {
-
-        result.innerHTML = "🟢 LOW FLOOD RISK";
-
-        result.style.backgroundColor = "#d1fae5";
-
-    }
-
-    else if (risk === "MEDIUM") {
-
-        result.innerHTML = "🟠 MEDIUM FLOOD RISK";
-
-        result.style.backgroundColor = "#fef3c7";
-
-    }
-
-    else {
-
-        result.innerHTML =
-            "🔴 HIGH FLOOD RISK - Avoid low lying roads";
-
-        result.style.backgroundColor = "#fecaca";
-
-    }
-}
-
-
-// ===============================
-// MAP
-// ===============================
-
-let map = L.map("map").setView(
-    [12.9716, 77.5946],
-    12
-);
-
-
-// OpenStreetMap
-L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        attribution: "© OpenStreetMap contributors"
-    }
-).addTo(map);
-
-
-// Pothole marker
-L.marker([12.9716, 77.5946])
-    .addTo(map)
-    .bindPopup("🕳️ Pothole detected");
-
-
-// Flooded road marker
-L.marker([12.9850, 77.6050])
-    .addTo(map)
-    .bindPopup("🌊 Flooded Road");
-
-
-// ===============================
-// GET USER LOCATION
-// ===============================
-
+// Watch the user's location
 function getLocation() {
-
-    let location =
-        document.getElementById("location");
+    const output = document.getElementById("location");
+    const status = document.getElementById("mapStatus");
 
     if (!navigator.geolocation) {
-
-        location.innerHTML =
-            "Location is not supported.";
-
+        output.textContent = "Location is not supported by this browser.";
         return;
     }
 
-    navigator.geolocation.getCurrentPosition(
+    status.textContent = "Requesting location permission...";
 
-        function(position) {
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+    }
 
-            let latitude =
-                position.coords.latitude;
+    watchId = navigator.geolocation.watchPosition(
+        function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
 
-            let longitude =
-                position.coords.longitude;
+            currentPosition = L.latLng(lat, lng);
 
-            location.innerHTML =
-                "📍 Latitude: " +
-                latitude +
-                "<br>" +
-                "Longitude: " +
-                longitude;
+            output.innerHTML =
+                "📍 You are here<br>" +
+                "Latitude: " + lat.toFixed(6) + "<br>" +
+                "Longitude: " + lng.toFixed(6);
 
+            if (!userMarker) {
+                userMarker = L.marker(currentPosition)
+                    .addTo(map)
+                    .bindPopup("📍 You are here");
 
-            // Move map to user's location
-            map.setView(
-                [latitude, longitude],
-                15
-            );
+                accuracyCircle = L.circle(currentPosition, {
+                    radius: position.coords.accuracy,
+                    color: "#0284c7"
+                }).addTo(map);
 
+                map.setView(currentPosition, 16);
+            } else {
+                userMarker.setLatLng(currentPosition);
+                accuracyCircle.setLatLng(currentPosition);
+                accuracyCircle.setRadius(position.coords.accuracy);
+            }
 
-            // Add user location marker
-            L.marker([latitude, longitude])
-                .addTo(map)
-                .bindPopup("📍 Your Location")
-                .openPopup();
-
+            status.textContent =
+                "Live location updated. Click the map to choose a hazard location.";
         },
+        function (error) {
+            const messages = {
+                1: "Location permission denied. Allow location in browser settings.",
+                2: "Location unavailable. Check device location settings.",
+                3: "Location timed out. Please try again."
+            };
 
-        function() {
-
-            location.innerHTML =
-                "❌ Unable to get your location.";
-
+            status.textContent =
+                messages[error.code] || "Unable to obtain location.";
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 3000,
+            timeout: 20000
         }
-
     );
-
 }
 
-
-// ===============================
-// REPORT ROAD HAZARD
-// ===============================
-
+// Submit a hazard report and display it on the map
 function reportHazard() {
+    const hazard = document.getElementById("hazard").value;
+    const place = document.getElementById("place").value.trim();
+    const photoInput = document.getElementById("photo");
+    const result = document.getElementById("reportResult");
 
-    let hazard =
-        document.getElementById("hazard").value;
-
-    let place =
-        document.getElementById("place").value;
-
-    let result =
-        document.getElementById("reportResult");
-
-
-    if (place === "") {
-
-        result.innerHTML =
-            "⚠️ Please enter the location.";
-
+    if (!place) {
+        result.textContent = "⚠️ Please enter the road or area name.";
         return;
-
     }
 
+    if (!photoInput.files || !photoInput.files[0]) {
+        result.textContent = "⚠️ Please select a photo of the hazard.";
+        return;
+    }
 
-    result.innerHTML =
-        "✅ " +
-        hazard +
-        " reported at " +
-        place +
-        "!";
+    const file = photoInput.files[0];
+
+    if (!file.type.startsWith("image/")) {
+        result.textContent = "⚠️ Please select an image file.";
+        return;
+    }
+
+    // Use the location selected on the map, or current GPS location
+    const reportPosition = selectedReportPosition || currentPosition;
+
+    if (!reportPosition) {
+        result.textContent =
+            "⚠️ Click the map to select the hazard location, " +
+            "or detect your current location first.";
+        return;
+    }
+
+    const photoURL = URL.createObjectURL(file);
+
+    const colors = {
+        "Pothole": "red",
+        "Flooded Road": "blue",
+        "Road Damage": "orange"
+    };
+
+    const marker = L.circleMarker(reportPosition, {
+        radius: 9,
+        color: colors[hazard] || "red",
+        fillColor: colors[hazard] || "red",
+        fillOpacity: 0.85
+    }).addTo(map);
+
+    // Use DOM elements for the popup rather than inserting user text as HTML
+    const popup = document.createElement("div");
+    const title = document.createElement("strong");
+    const address = document.createElement("p");
+    const image = document.createElement("img");
+
+    title.textContent = "🚨 " + hazard;
+    address.textContent = "Location: " + place;
+    image.src = photoURL;
+    image.alt = "Reported road hazard";
+    image.className = "hazard-photo";
+
+    popup.append(title, address, image);
+    marker.bindPopup(popup);
+
+    hazardMarkers.push(marker);
+    marker.openPopup();
+
+    result.textContent =
+        "✅ " + hazard + " added to the map at " + place +
+        ". This report is currently stored only in this browser session.";
+
+    // Clear the selected report location after submission
+    selectedReportPosition = null;
 }
 
+// Demo only: this risk is randomly generated, not based on live weather
+function checkFlood() {
+    const result = document.getElementById("floodResult");
+    const risks = ["LOW", "MEDIUM", "HIGH"];
+    const risk = risks[Math.floor(Math.random() * risks.length)];
+
+    const styles = {
+        LOW: ["🟢 LOW FLOOD RISK", "#d1fae5"],
+        MEDIUM: ["🟠 MEDIUM FLOOD RISK", "#fef3c7"],
+        HIGH: ["🔴 HIGH FLOOD RISK — Avoid low-lying roads", "#fecaca"]
+    };
+
+    result.textContent = styles[risk][0];
+    result.style.backgroundColor = styles[risk][1];
+}
